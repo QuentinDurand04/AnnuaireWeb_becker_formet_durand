@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebDirectory</title>
+    <script defer src="js/app.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-bar">
+    <button id="btn-department">Filter by Department</button>
+    <button id="btn-search">Search by Name</button>
+</div>
+<div id="department-view">
+    <label for="department-select">Select Department:</label>
+    <select id="department-select">
+        <option value="">All Departments</option>
+    </select>
+</div>
+<div id="search-view" class="hidden">
+    <label for="name-search">Search by Name:</label>
+    <input type="text" id="name-search" placeholder="Enter name">
+</div>
+<ul id="entries-list"></ul>
+<div id="entry-detail" class="hidden">
+    <h2>Entry Detail</h2>
+    <p id="detail-name"></p>
+    <p id="detail-department"></p>
+    <p id="detail-email"></p>
+    <div id="detail-image"></div>
+    <button id="btn-back">Back to List</button>
+</div>
+</body>
+</html>
