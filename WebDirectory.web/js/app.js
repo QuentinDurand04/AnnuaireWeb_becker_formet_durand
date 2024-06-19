@@ -13,7 +13,7 @@ function fetchEntries() {
             if (Array.isArray(data.entres)) {
                 allEntries = data.entres;
                 populateDepartments(allEntries);
-                displayEntries(allEntries);
+                displayEntries(allEntries, 'entries-list'); // Display initial entries in department view
             } else {
                 console.error('API did not return an array of entries:', data);
             }
@@ -30,6 +30,7 @@ function setupEventListeners() {
 
     document.getElementById('btn-search').addEventListener('click', () => {
         showView('search-view');
+        displayEntries(allEntries, 'search-entries-list'); // Display entries in search view
     });
 
     document.getElementById('department-select').addEventListener('change', (event) => {
@@ -37,7 +38,7 @@ function setupEventListeners() {
         const filteredEntries = selectedDepartment ?
             allEntries.filter(entry => entry.departements.includes(selectedDepartment)) :
             allEntries;
-        displayEntries(filteredEntries);
+        displayEntries(filteredEntries, 'entries-list');
     });
 
     document.getElementById('name-search').addEventListener('input', (event) => {
@@ -48,12 +49,12 @@ function setupEventListeners() {
                 entry.prenom.toLowerCase().includes(searchText)
             ) :
             allEntries;
-        displayEntries(filteredEntries);
+        displayEntries(filteredEntries, 'search-entries-list');
     });
 
     document.getElementById('btn-back').addEventListener('click', () => {
         showView('department-view');
-        displayEntries(allEntries);
+        displayEntries(allEntries, 'entries-list');
     });
 }
 
@@ -75,47 +76,35 @@ function populateDepartments(entrees) {
     });
 }
 
-function displayEntries(entrees) {
-    const entriesList = document.getElementById('entries-list');
-    entriesList.innerHTML = ''; // Clear existing entries
+function displayEntries(entrees, listId) {
+    const templateSource = document.getElementById('entries-template').innerHTML;
+    const template = Handlebars.compile(templateSource);
+    const html = template({ entries: entrees });
+    document.getElementById(listId).innerHTML = html;
 
-    entrees.forEach(entry => {
-        const listItem = document.createElement('li');
-        const link = document.createElement('a');
-        link.href = '#';
-        link.textContent = `${entry.prenom} ${entry.nom} - ${entry.departements.join(', ')}`;
-        link.addEventListener('click', () => {
-            displayEntryDetail(entry);
+    document.querySelectorAll(`#${listId} a`).forEach(link => {
+        link.addEventListener('click', event => {
+            event.preventDefault();
+            const index = event.target.getAttribute('data-id');
+            displayEntryDetail(allEntries[index]);
         });
-        listItem.appendChild(link);
-        entriesList.appendChild(listItem);
     });
 }
 
 function displayEntryDetail(entry) {
-    document.getElementById('detail-name').textContent = `${entry.prenom} ${entry.nom}`;
-    document.getElementById('detail-department').textContent = `Departments: ${entry.departements.join(', ')}`;
-
-    // Email link
-    const emailLink = document.getElementById('detail-email');
-    emailLink.innerHTML = `<a href="mailto:${entry.links.email}" target="_blank">${entry.links.email}</a>`;
-
-    // Image
-    const imgContainer = document.getElementById('detail-image');
-    imgContainer.innerHTML = ''; // Clear previous image
-    const img = document.createElement('img');
-    img.src = `http://localhost:42064/api/${entry.links.img}`;
-    img.alt = `${entry.prenom} ${entry.nom}`;
-    imgContainer.appendChild(img);
+    const templateSource = document.getElementById('entry-detail-template').innerHTML;
+    const template = Handlebars.compile(templateSource);
+    const html = template(entry);
+    const detailContainer = document.getElementById('entry-detail');
+    detailContainer.innerHTML = html;
 
     showView('entry-detail');
 }
 
-
 function showView(viewId) {
-    const views = ['department-view', 'search-view', 'entry-detail'];
+    const views = document.querySelectorAll('.view');
     views.forEach(view => {
-        document.getElementById(view).classList.add('hidden');
+        view.classList.add('hidden');
     });
     document.getElementById(viewId).classList.remove('hidden');
 }
